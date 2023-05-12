@@ -10,32 +10,41 @@ import org.mose.property.impl.ValueSetType;
 import java.util.Collection;
 import java.util.function.Function;
 
-public class WriteCollectionProperty<T, D extends Collection<?>> extends AbstractCollectionProperty<T, D>
+public class WriteCollectionPropertyImpl<T, D extends Collection<?>> extends AbstractCollectionProperty<T, D>
         implements CollectionProperty.Write<T, D> {
 
     private final ValueOverrideRule rule;
 
-    public WriteCollectionProperty(Function<Collection<T>, D> displayMappings, @Nullable Collection<T> collection) {
+    public WriteCollectionPropertyImpl(Function<Collection<T>, D> displayMappings, @Nullable Collection<T> collection) {
         this(ValueOverrideRule.PREFER_NEWEST, displayMappings, collection);
     }
 
-    public WriteCollectionProperty(@NotNull ValueOverrideRule rule, @NotNull Function<Collection<T>, D> displayMappings, @Nullable Collection<T> collection) {
+    public WriteCollectionPropertyImpl(@NotNull ValueOverrideRule rule, @NotNull Function<Collection<T>, D> displayMappings, @Nullable Collection<T> collection) {
         super(displayMappings, collection);
         this.rule = rule;
     }
 
     @Override
-    protected void onElementsAdded(Collection<T> newValues) {
-        this.sendElementsAdded(newValues);
+    protected boolean onElementsAdded(Collection<T> newValues) {
+        if (newValues.isEmpty()) {
+            return false;
+        }
+        return this.sendElementsAdded(newValues);
     }
 
     @Override
-    protected void onElementsRemoved(Collection<T> removedValues) {
-        this.sendElementsRemoved(removedValues);
+    protected boolean onElementsRemoved(Collection<T> removedValues) {
+        if (removedValues.isEmpty()) {
+            return false;
+        }
+        return this.sendElementsRemoved(removedValues);
     }
 
     @Override
     protected void onValueChange(Collection<T> newValue, ValueSetType type) {
+        if (this.value().map(v -> v.equals(newValue)).orElse(false)) {
+            return;
+        }
         if (!this.rule.shouldOverride(this.lastKnownValueSetAs, type)) {
             return;
         }
@@ -43,15 +52,8 @@ public class WriteCollectionProperty<T, D extends Collection<?>> extends Abstrac
     }
 
     @Override
-    public Property.ReadOnly<Collection<T>, D> createBoundReadOnly() {
-        ReadOnlyCollectionProperty<T, D> property = new ReadOnlyCollectionProperty<>(this.displayMappings, null);
-        property.bindTo(this);
-        return property;
-    }
-
-    @Override
     public boolean addAll(Collection<T> collection) {
-        return this.sendElementsAdded(collection);
+        return this.onElementsAdded(collection);
     }
 
     @Override
@@ -61,7 +63,7 @@ public class WriteCollectionProperty<T, D extends Collection<?>> extends Abstrac
 
     @Override
     public void setValue(Collection<T> value) {
-        this.sendValueChange(value, ValueSetType.SET);
+        this.onValueChange(value, ValueSetType.SET);
     }
 
     @Override

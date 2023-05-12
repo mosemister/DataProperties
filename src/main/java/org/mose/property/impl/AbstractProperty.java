@@ -100,4 +100,18 @@ public abstract class AbstractProperty<T, D> implements Property<T, D> {
         Optional<C> value = bindData.from().unmappedValue();
         return value.map(bindData.mapping());
     }
+
+    @Override
+    public ReadOnly<T, D> createBoundReadOnly() {
+        ReadOnlyPropertyImpl<T, D> property = new ReadOnlyPropertyImpl<>(this.displayMappings, null);
+        property.bindTo(this);
+        return property;
+    }
+
+    @Override
+    public <A, B> ReadOnly<A, B> createBoundReadOnly(Function<T, A> map, Function<A, B> displayMapping) {
+        ReadOnlyPropertyImpl<A, B> property = new ReadOnlyPropertyImpl<>(displayMapping, null);
+        property.bindTo(this, map);
+        return property;
+    }
 }

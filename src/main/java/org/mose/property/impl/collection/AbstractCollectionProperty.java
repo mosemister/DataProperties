@@ -2,6 +2,7 @@ package org.mose.property.impl.collection;
 
 import org.jetbrains.annotations.NotNull;
 import org.mose.property.CollectionProperty;
+import org.mose.property.Property;
 import org.mose.property.event.CollectionUpdateEvent;
 import org.mose.property.impl.AbstractProperty;
 import org.mose.property.impl.BindData;
@@ -20,9 +21,9 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
         super(displayMappings, defaultValue);
     }
 
-    protected abstract void onElementsAdded(Collection<T> newValues);
+    protected abstract boolean onElementsAdded(Collection<T> newValues);
 
-    protected abstract void onElementsRemoved(Collection<T> removedValues);
+    protected abstract boolean onElementsRemoved(Collection<T> removedValues);
 
     @Override
     public void registerCollectionAddEvent(CollectionUpdateEvent.CollectionAddIndexEvent<T> addEvent) {
@@ -43,7 +44,7 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
         on.accept(to, mapped);
     }
 
-    boolean sendElementsAdded(Collection<T> added) {
+    protected boolean sendElementsAdded(Collection<T> added) {
         this.bindData.parallelStream().filter(data -> data.to() instanceof AbstractCollectionProperty).forEach(data -> {
             this.sendElementChange(data, added, AbstractCollectionProperty::onElementsAdded);
         });
@@ -54,7 +55,7 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
         return this.lastKnownValue.addAll(added);
     }
 
-    boolean sendElementsRemoved(Collection<T> removed) {
+    protected boolean sendElementsRemoved(Collection<T> removed) {
         this.bindData.parallelStream().filter(data -> data.to() instanceof AbstractCollectionProperty).forEach(data -> {
             this.sendElementChange(data, removed, AbstractCollectionProperty::onElementsRemoved);
         });
@@ -63,5 +64,23 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
                 .filter(event -> event instanceof CollectionUpdateEvent.CollectionRemoveIndexEvent)
                 .forEach(event -> event.handle(this, this.lastKnownValue, removed));
         return this.lastKnownValue.removeAll(removed);
+    }
+
+    @Override
+    public Property.ReadOnly<Collection<T>, D> createBoundReadOnly() {
+        ReadOnlyCollectionPropertyImpl<T, D> property = new ReadOnlyCollectionPropertyImpl<>(this.displayMappings, null);
+        property.bindTo(this);
+        return property;
+    }
+
+    @Override
+    public <A, B> Property.ReadOnly<A, B> createBoundReadOnly(Function<Collection<T>, A> map, Function<A, B> displayMapping) {
+        Property.ReadOnly<A, B> property = (Property.ReadOnly<A, B>) createReadOnly(displayMapping);
+        property.bindTo(this, map);
+        return property;
+    }
+
+    private <A, B extends Collection<?>> CollectionProperty.ReadOnly<A, B> createReadOnly(Function<?, ?> displayMapping) {
+        return new ReadOnlyCollectionPropertyImpl<>((Function<Collection<A>, B>) displayMapping, null);
     }
 }

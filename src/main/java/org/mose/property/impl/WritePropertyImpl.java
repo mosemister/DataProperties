@@ -26,6 +26,9 @@ public class WritePropertyImpl<T, D> extends AbstractProperty<T, D> implements P
 
     @Override
     protected void onValueChange(T newValue, ValueSetType type) {
+        if (this.value().map(v -> v.equals(newValue)).orElse(false)) {
+            return;
+        }
         if (!this.rule.shouldOverride(this.lastKnownValueSetAs, type)) {
             return;
         }
@@ -35,12 +38,5 @@ public class WritePropertyImpl<T, D> extends AbstractProperty<T, D> implements P
     @Override
     public void setValue(T value) {
         this.onValueChange(value, ValueSetType.SET);
-    }
-
-    @Override
-    public ReadOnly<T, D> createBoundReadOnly() {
-        ReadOnlyPropertyImpl<T, D> property = new ReadOnlyPropertyImpl<>(this.displayMappings, null);
-        property.bindTo(this);
-        return property;
     }
 }

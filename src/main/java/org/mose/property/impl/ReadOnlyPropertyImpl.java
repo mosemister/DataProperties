@@ -13,6 +13,9 @@ public class ReadOnlyPropertyImpl<T, D> extends AbstractProperty<T, D> implement
 
     @Override
     protected void onValueChange(T newValue, ValueSetType type) {
+        if (this.value().map(v -> v.equals(newValue)).orElse(false)) {
+            return;
+        }
         this.sendValueChange(newValue, type);
     }
 
