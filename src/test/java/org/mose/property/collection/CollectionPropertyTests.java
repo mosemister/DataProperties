@@ -21,7 +21,7 @@ public class CollectionPropertyTests {
     private final Supplier<Property.Write<Collection<Boolean>, Collection<Boolean>>> WITH_VALUE_A_PREFER_BOUND = () -> new WriteCollectionPropertyImpl<>(ValueOverrideRule.PREFER_BOUND, t -> t, VALUE_A);
 
     @Test
-    public <A> void isDefaultValueInserted() {
+    public <A> void isDefaultValueInsertedTest() {
 
         //act
         Property<A, A> property = (Property<A, A>) WITH_VALUE_A.get();
@@ -32,7 +32,7 @@ public class CollectionPropertyTests {
     }
 
     @Test
-    public <A> void canChangeValue() {
+    public <A> void canChangeValueTest() {
         Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A.get();
 
         //act
@@ -44,7 +44,7 @@ public class CollectionPropertyTests {
     }
 
     @Test
-    public <A> void canCreateBoundReadOnly() {
+    public <A> void canCreateBoundReadOnlyTest() {
         Property<A, A> property = (Property<A, A>) WITH_VALUE_A.get();
 
         //act
@@ -56,7 +56,7 @@ public class CollectionPropertyTests {
     }
 
     @Test
-    public <A> void canChangeBoundValue() {
+    public <A> void canChangeBoundValueTest() {
         Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A.get();
 
         //act
@@ -69,7 +69,7 @@ public class CollectionPropertyTests {
     }
 
     @Test
-    public <A> void canChangeValueWithNewestRule() {
+    public <A> void canChangeValueWithNewestRuleTest() {
         Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_NEWEST.get();
 
         //act
@@ -81,7 +81,7 @@ public class CollectionPropertyTests {
     }
 
     @Test
-    public <A> void canChangeValueWithSetRule() {
+    public <A> void canChangeValueWithSetRuleTest() {
         Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_SET.get();
 
         //act
@@ -93,7 +93,7 @@ public class CollectionPropertyTests {
     }
 
     @Test
-    public <A> void canChangeValueWithSetRuleWithoutBoundsOverriding() {
+    public <A> void canChangeValueWithSetRuleWithoutBoundsOverridingTest() {
         Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_SET.get();
         Property.Write<A, A> bound = (Property.Write<A, A>) WITH_VALUE_A_PREFER_SET.get();
         bound.bindTo(property);
@@ -107,7 +107,7 @@ public class CollectionPropertyTests {
     }
 
     @Test
-    public <A> void canChangeValueWithBoundRule() {
+    public <A> void canChangeValueWithBoundRuleTest() {
         Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_BOUND.get();
 
         //act
@@ -119,7 +119,7 @@ public class CollectionPropertyTests {
     }
 
     @Test
-    public <A> void canChangeValueWithBoundRuleWithoutSetOverriding() {
+    public <A> void canChangeValueWithBoundRuleWithoutSetOverridingTest() {
         Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_SET.get();
         Property.Write<A, A> bound = (Property.Write<A, A>) WITH_VALUE_A_PREFER_BOUND.get();
         bound.bindTo(property);
