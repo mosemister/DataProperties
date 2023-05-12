@@ -9,7 +9,7 @@ This is based on Properties from JavaFX
 ## Maven
 
 ```xml
-<repositories>
+	<repositories>
 		<repository>
 		    <id>jitpack.io</id>
 		    <url>https://jitpack.io</url>
