@@ -65,8 +65,8 @@ public abstract class AbstractProperty<T, D> implements Property<T, D> {
     }
 
     @Override
-    public D value() {
-        return this.displayMappings.apply(this.valueImpl());
+    public Optional<D> value() {
+        return this.valueImpl().map(this.displayMappings);
     }
 
     protected abstract void onValueChange(T newValue, ValueSetType type);
@@ -77,24 +77,27 @@ public abstract class AbstractProperty<T, D> implements Property<T, D> {
         this.lastKnownValue = newValue;
     }
 
-    private T unmappedValue() {
+    private Optional<T> unmappedValue() {
         return this.valueImpl();
     }
 
-    private <C> T valueImpl() {
+    private <C> Optional<T> valueImpl() {
         if (null == this.boundTo) {
-            return this.lastKnownValue;
+            return Optional.ofNullable(this.lastKnownValue);
         }
         ValueOverrideRule valueOverrideRule = this.valueOverrideRule();
         if (valueOverrideRule == ValueOverrideRule.PREFER_SET && this.lastKnownValueSetAs == ValueSetType.SET) {
-            return this.lastKnownValue;
+            return Optional.ofNullable(this.lastKnownValue);
         }
         return boundValue();
     }
 
-    private <C> T boundValue() {
+    private <C> Optional<T> boundValue() {
         BindData<C, ?, T, ?> bindData = (BindData<C, ?, T, ?>) this.boundTo;
-        C value = bindData.from().unmappedValue();
-        return bindData.mapping().apply(value);
+        if (bindData == null) {
+            throw new RuntimeException("BoundValue called without checking if boundto is not null");
+        }
+        Optional<C> value = bindData.from().unmappedValue();
+        return value.map(bindData.mapping());
     }
 }

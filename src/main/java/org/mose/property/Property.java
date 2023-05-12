@@ -22,7 +22,7 @@ public interface Property<T, D> {
 
     void removeBind();
 
-    D value();
+    Optional<D> value();
 
     ValueOverrideRule valueOverrideRule();
 

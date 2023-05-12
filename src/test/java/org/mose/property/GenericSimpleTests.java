@@ -12,7 +12,8 @@ public class GenericSimpleTests {
         WritePropertyImpl<Boolean, Boolean> property = new WritePropertyImpl<>(t -> t, true);
 
         //assert
-        Assertions.assertTrue(property.value());
+        Assertions.assertTrue(property.value().isPresent());
+        Assertions.assertTrue(property.value().get());
     }
 
     @Test
@@ -23,7 +24,8 @@ public class GenericSimpleTests {
         property.setValue(false);
 
         //assert
-        Assertions.assertFalse(property.value());
+        Assertions.assertTrue(property.value().isPresent());
+        Assertions.assertFalse(property.value().get());
     }
 
     @Test
@@ -34,7 +36,8 @@ public class GenericSimpleTests {
         Property.ReadOnly<Boolean, Boolean> bound = property.createBoundReadOnly();
 
         //assert
-        Assertions.assertTrue(bound.value());
+        Assertions.assertTrue(bound.value().isPresent());
+        Assertions.assertTrue(bound.value().get());
     }
 
     @Test
@@ -46,7 +49,8 @@ public class GenericSimpleTests {
         property.setValue(false);
 
         //assert
-        Assertions.assertFalse(bound.value());
+        Assertions.assertTrue(bound.value().isPresent());
+        Assertions.assertFalse(bound.value().get());
     }
 
     @Test
@@ -57,7 +61,8 @@ public class GenericSimpleTests {
         property.setValue(false);
 
         //assert
-        Assertions.assertFalse(property.value());
+        Assertions.assertTrue(property.value().isPresent());
+        Assertions.assertFalse(property.value().get());
     }
 
     @Test
@@ -68,7 +73,8 @@ public class GenericSimpleTests {
         property.setValue(false);
 
         //assert
-        Assertions.assertFalse(property.value());
+        Assertions.assertTrue(property.value().isPresent());
+        Assertions.assertFalse(property.value().get());
     }
 
     @Test
@@ -81,7 +87,8 @@ public class GenericSimpleTests {
         property.setValue(false);
 
         //assert
-        Assertions.assertTrue(bound.value());
+        Assertions.assertTrue(bound.value().isPresent());
+        Assertions.assertTrue(bound.value().get());
     }
 
     @Test
@@ -92,7 +99,8 @@ public class GenericSimpleTests {
         property.setValue(false);
 
         //assert
-        Assertions.assertFalse(property.value());
+        Assertions.assertTrue(property.value().isPresent());
+        Assertions.assertFalse(property.value().get());
     }
 
     @Test
@@ -106,7 +114,8 @@ public class GenericSimpleTests {
         bound.setValue(null);
 
         //assert
-        Assertions.assertFalse(bound.value());
+        Assertions.assertTrue(bound.value().isPresent());
+        Assertions.assertFalse(bound.value().get());
     }
 
     @Test
