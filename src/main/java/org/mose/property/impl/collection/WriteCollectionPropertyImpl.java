@@ -3,7 +3,6 @@ package org.mose.property.impl.collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mose.property.CollectionProperty;
-import org.mose.property.Property;
 import org.mose.property.ValueOverrideRule;
 import org.mose.property.impl.ValueSetType;
 
@@ -22,6 +21,14 @@ public class WriteCollectionPropertyImpl<T, D extends Collection<?>> extends Abs
     public WriteCollectionPropertyImpl(@NotNull ValueOverrideRule rule, @NotNull Function<Collection<T>, D> displayMappings, @Nullable Collection<T> collection) {
         super(displayMappings, collection);
         this.rule = rule;
+    }
+
+    public static <V> CollectionProperty.Write<V, Collection<V>> create() {
+        return create(null);
+    }
+
+    public static <V> CollectionProperty.Write<V, Collection<V>> create(@Nullable Collection<V> displayValue) {
+        return new WriteCollectionPropertyImpl<>(t -> t, displayValue);
     }
 
     @Override

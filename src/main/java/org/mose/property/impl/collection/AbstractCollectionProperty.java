@@ -72,15 +72,4 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
         property.bindTo(this);
         return property;
     }
-
-    @Override
-    public <A, B> Property.ReadOnly<A, B> createBoundReadOnly(Function<Collection<T>, A> map, Function<A, B> displayMapping) {
-        Property.ReadOnly<A, B> property = (Property.ReadOnly<A, B>) createReadOnly(displayMapping);
-        property.bindTo(this, map);
-        return property;
-    }
-
-    private <A, B extends Collection<?>> CollectionProperty.ReadOnly<A, B> createReadOnly(Function<?, ?> displayMapping) {
-        return new ReadOnlyCollectionPropertyImpl<>((Function<Collection<A>, B>) displayMapping, null);
-    }
 }

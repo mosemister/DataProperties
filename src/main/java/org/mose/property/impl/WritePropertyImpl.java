@@ -19,6 +19,14 @@ public class WritePropertyImpl<T, D> extends AbstractProperty<T, D> implements P
         this.rule = rule;
     }
 
+    public static <V> Property.Write<V, V> create() {
+        return create(null);
+    }
+
+    public static <V> Property.Write<V, V> create(@Nullable V displayValue) {
+        return new WritePropertyImpl<>(t -> t, displayValue);
+    }
+
     @Override
     public ValueOverrideRule valueOverrideRule() {
         return this.rule;

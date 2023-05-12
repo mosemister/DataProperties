@@ -107,11 +107,4 @@ public abstract class AbstractProperty<T, D> implements Property<T, D> {
         property.bindTo(this);
         return property;
     }
-
-    @Override
-    public <A, B> ReadOnly<A, B> createBoundReadOnly(Function<T, A> map, Function<A, B> displayMapping) {
-        ReadOnlyPropertyImpl<A, B> property = new ReadOnlyPropertyImpl<>(displayMapping, null);
-        property.bindTo(this, map);
-        return property;
-    }
 }

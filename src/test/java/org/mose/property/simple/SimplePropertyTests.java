@@ -113,7 +113,7 @@ public class SimplePropertyTests {
 
         //assert
         Assertions.assertTrue(property.value().isPresent());
-        Assertions.assertEquals((A) VALUE_B, property.value().get());
+        Assertions.assertEquals(VALUE_B, property.value().get());
     }
 
     @Test

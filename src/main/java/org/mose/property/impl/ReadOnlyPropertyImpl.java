@@ -11,6 +11,14 @@ public class ReadOnlyPropertyImpl<T, D> extends AbstractProperty<T, D> implement
         super(displayMapping, displayValue);
     }
 
+    public static <V> Property.ReadOnly<V, V> create() {
+        return create(null);
+    }
+
+    public static <V> Property.ReadOnly<V, V> create(@Nullable V displayValue) {
+        return new ReadOnlyPropertyImpl<>(t -> t, displayValue);
+    }
+
     @Override
     protected void onValueChange(T newValue, ValueSetType type) {
         if (this.value().map(v -> v.equals(newValue)).orElse(false)) {

@@ -18,12 +18,6 @@ public interface Property<T, D> {
 
     ReadOnly<T, D> createBoundReadOnly();
 
-    default <A> ReadOnly<A, A> createBoundReadOnly(Function<T, A> map) {
-        return createBoundReadOnly(map, t -> t);
-    }
-
-    <A, B> ReadOnly<A, B> createBoundReadOnly(Function<T, A> map, Function<A, B> displayMapping);
-
     void registerValueChangeEvent(PropertyChangeEvent<T> event);
 
     void removeBind();

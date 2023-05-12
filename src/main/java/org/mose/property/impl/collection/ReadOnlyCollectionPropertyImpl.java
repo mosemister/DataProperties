@@ -15,9 +15,17 @@ public class ReadOnlyCollectionPropertyImpl<T, D extends Collection<?>> extends 
         super(displayMappings, defaultValue);
     }
 
+    public static <V> CollectionProperty.ReadOnly<V, Collection<V>> create() {
+        return create(null);
+    }
+
+    public static <V> CollectionProperty.ReadOnly<V, Collection<V>> create(@Nullable Collection<V> displayValue) {
+        return new ReadOnlyCollectionPropertyImpl<>(t -> t, displayValue);
+    }
+
     @Override
     protected boolean onElementsAdded(Collection<T> newValues) {
-        if(newValues.isEmpty()){
+        if (newValues.isEmpty()) {
             return false;
         }
         return this.sendElementsAdded(newValues);
@@ -25,7 +33,7 @@ public class ReadOnlyCollectionPropertyImpl<T, D extends Collection<?>> extends 
 
     @Override
     protected boolean onElementsRemoved(Collection<T> removedValues) {
-        if(removedValues.isEmpty()){
+        if (removedValues.isEmpty()) {
             return false;
         }
         return this.sendElementsRemoved(removedValues);
