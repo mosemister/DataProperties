@@ -22,7 +22,7 @@ public class EventTests {
     }
 
     @Test
-    public void doesEventFireForBoundChange(){
+    public void doesEventFireForBoundChange() {
         WritePropertyImpl<Boolean, Boolean> property = new WritePropertyImpl<>(t -> t, true);
         Property<Boolean, Boolean> bound = new ReadOnlyPropertyImpl<>(t -> t, null);
         bound.bindTo(property);
@@ -37,7 +37,7 @@ public class EventTests {
     }
 
     @Test
-    public void doesEventFireForBoundChangeWhenNoChangeOccurs(){
+    public void doesEventFireForBoundChangeWhenNoChangeOccurs() {
         WritePropertyImpl<Integer, Integer> property = new WritePropertyImpl<>(t -> t, 1);
         Property<Boolean, Boolean> bound = new ReadOnlyPropertyImpl<>(t -> t, null);
         bound.bindTo(property, value -> value > 10);
@@ -52,7 +52,7 @@ public class EventTests {
     }
 
     @Test
-    public void doesEventFireForMappedBoundChange(){
+    public void doesEventFireForMappedBoundChange() {
         WritePropertyImpl<Integer, Integer> property = new WritePropertyImpl<>(t -> t, 1);
         Property<Boolean, Boolean> bound = new ReadOnlyPropertyImpl<>(t -> t, null);
         bound.bindTo(property, value -> value > 10);

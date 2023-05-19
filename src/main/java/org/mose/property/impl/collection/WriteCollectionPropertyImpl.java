@@ -6,29 +6,23 @@ import org.mose.property.CollectionProperty;
 import org.mose.property.ValueOverrideRule;
 import org.mose.property.impl.ValueSetType;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class WriteCollectionPropertyImpl<T, D extends Collection<?>> extends AbstractCollectionProperty<T, D>
         implements CollectionProperty.Write<T, D> {
 
     private final ValueOverrideRule rule;
 
-    public WriteCollectionPropertyImpl(Function<Collection<T>, D> displayMappings, @Nullable Collection<T> collection) {
-        this(ValueOverrideRule.PREFER_NEWEST, displayMappings, collection);
+    public WriteCollectionPropertyImpl(Function<Collection<T>, D> displayMappings, Supplier<D> defaultSupplier, @Nullable Collection<T> collection) {
+        this(ValueOverrideRule.PREFER_NEWEST, displayMappings, defaultSupplier, collection);
     }
 
-    public WriteCollectionPropertyImpl(@NotNull ValueOverrideRule rule, @NotNull Function<Collection<T>, D> displayMappings, @Nullable Collection<T> collection) {
-        super(displayMappings, collection);
+    public WriteCollectionPropertyImpl(@NotNull ValueOverrideRule rule, @NotNull Function<Collection<T>, D> displayMappings, Supplier<D> defaultSupplier, @Nullable Collection<T> collection) {
+        super(displayMappings, collection, defaultSupplier);
         this.rule = rule;
-    }
-
-    public static <V> CollectionProperty.Write<V, Collection<V>> create() {
-        return create(null);
-    }
-
-    public static <V> CollectionProperty.Write<V, Collection<V>> create(@Nullable Collection<V> displayValue) {
-        return new WriteCollectionPropertyImpl<>(t -> t, displayValue);
     }
 
     @Override
@@ -76,5 +70,13 @@ public class WriteCollectionPropertyImpl<T, D extends Collection<?>> extends Abs
     @Override
     public ValueOverrideRule valueOverrideRule() {
         return this.rule;
+    }
+
+    public static <V> CollectionProperty.Write<V, Collection<V>> create() {
+        return create(null);
+    }
+
+    public static <V> CollectionProperty.Write<V, Collection<V>> create(@Nullable Collection<V> displayValue) {
+        return new WriteCollectionPropertyImpl<>(t -> t, ArrayList::new, displayValue);
     }
 }

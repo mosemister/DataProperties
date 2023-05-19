@@ -4,21 +4,22 @@ import org.jetbrains.annotations.NotNull;
 import org.mose.property.CollectionProperty;
 import org.mose.property.Property;
 import org.mose.property.event.CollectionUpdateEvent;
-import org.mose.property.impl.AbstractProperty;
 import org.mose.property.impl.BindData;
+import org.mose.property.impl.nevernull.AbstractNeverNullProperty;
 
 import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-public abstract class AbstractCollectionProperty<T, D extends Collection<?>> extends AbstractProperty<Collection<T>, D> implements CollectionProperty<T, D> {
+public abstract class AbstractCollectionProperty<T, D extends Collection<?>> extends AbstractNeverNullProperty<Collection<T>, D> implements CollectionProperty<T, D> {
 
     private final Queue<CollectionUpdateEvent<T>> indexUpdateEvents = new LinkedTransferQueue<>();
 
-    protected AbstractCollectionProperty(@NotNull Function<Collection<T>, D> displayMappings, Collection<T> defaultValue) {
-        super(displayMappings, defaultValue);
+    protected AbstractCollectionProperty(@NotNull Function<Collection<T>, D> displayMappings, Collection<T> defaultValue, Supplier<D> defaultSupplier) {
+        super(displayMappings, defaultSupplier, defaultValue);
     }
 
     protected abstract boolean onElementsAdded(Collection<T> newValues);
@@ -32,7 +33,7 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
 
     @Override
     public void registerCollectionRemoveEvent(CollectionUpdateEvent.CollectionRemoveIndexEvent<T> removeEvent) {
-        this.indexUpdateEvents.remove(removeEvent);
+        this.indexUpdateEvents.offer(removeEvent);
     }
 
     private <X, Z extends Collection<?>> void sendElementChange(BindData<Collection<T>, D, ?, ?> bindData,
@@ -67,9 +68,7 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
     }
 
     @Override
-    public Property.ReadOnly<Collection<T>, D> createBoundReadOnly() {
-        ReadOnlyCollectionPropertyImpl<T, D> property = new ReadOnlyCollectionPropertyImpl<>(this.displayMappings, null);
-        property.bindTo(this);
-        return property;
+    protected Property.ReadOnly<Collection<T>, D> createReadOnly(Function<Collection<T>, D> displayMappings) {
+        return new ReadOnlyCollectionPropertyImpl<>(this.displayMappings, this.defaultSupplier, null);
     }
 }

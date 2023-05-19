@@ -5,11 +5,7 @@ import org.mose.property.event.CollectionUpdateEvent;
 import java.util.Arrays;
 import java.util.Collection;
 
-public interface CollectionProperty<T, D extends Collection<?>> extends Property<Collection<T>, D> {
-
-    void registerCollectionAddEvent(CollectionUpdateEvent.CollectionAddIndexEvent<T> addEvent);
-
-    void registerCollectionRemoveEvent(CollectionUpdateEvent.CollectionRemoveIndexEvent<T> removeEvent);
+public interface CollectionProperty<T, D extends Collection<?>> extends Property.NeverNull<Collection<T>, D> {
 
     interface ReadOnly<T, D extends Collection<?>> extends Property.ReadOnly<Collection<T>, D>, CollectionProperty<T, D> {
 
@@ -42,5 +38,9 @@ public interface CollectionProperty<T, D extends Collection<?>> extends Property
         }
 
     }
+
+    void registerCollectionAddEvent(CollectionUpdateEvent.CollectionAddIndexEvent<T> addEvent);
+
+    void registerCollectionRemoveEvent(CollectionUpdateEvent.CollectionRemoveIndexEvent<T> removeEvent);
 
 }

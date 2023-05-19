@@ -51,6 +51,13 @@ public abstract class AbstractProperty<T, D> implements Property<T, D> {
     }
 
     @Override
+    public ReadOnly<T, D> createBoundReadOnly() {
+        ReadOnly<T, D> property = createReadOnly(this.displayMappings);
+        property.bindTo(this);
+        return property;
+    }
+
+    @Override
     public void registerValueChangeEvent(PropertyChangeEvent<T> event) {
         this.changeValueEvents.offer(event);
     }
@@ -101,10 +108,5 @@ public abstract class AbstractProperty<T, D> implements Property<T, D> {
         return value.map(bindData.mapping());
     }
 
-    @Override
-    public ReadOnly<T, D> createBoundReadOnly() {
-        ReadOnlyPropertyImpl<T, D> property = new ReadOnlyPropertyImpl<>(this.displayMappings, null);
-        property.bindTo(this);
-        return property;
-    }
+    protected abstract ReadOnly<T, D> createReadOnly(Function<T, D> displayMappings);
 }

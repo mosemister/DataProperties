@@ -5,22 +5,16 @@ import org.jetbrains.annotations.Nullable;
 import org.mose.property.CollectionProperty;
 import org.mose.property.impl.ValueSetType;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ReadOnlyCollectionPropertyImpl<T, D extends Collection<?>> extends AbstractCollectionProperty<T, D>
         implements CollectionProperty.ReadOnly<T, D> {
 
-    public ReadOnlyCollectionPropertyImpl(@NotNull Function<Collection<T>, D> displayMappings, @Nullable Collection<T> defaultValue) {
-        super(displayMappings, defaultValue);
-    }
-
-    public static <V> CollectionProperty.ReadOnly<V, Collection<V>> create() {
-        return create(null);
-    }
-
-    public static <V> CollectionProperty.ReadOnly<V, Collection<V>> create(@Nullable Collection<V> displayValue) {
-        return new ReadOnlyCollectionPropertyImpl<>(t -> t, displayValue);
+    public ReadOnlyCollectionPropertyImpl(@NotNull Function<Collection<T>, D> displayMappings, Supplier<D> defaultSupplier, @Nullable Collection<T> defaultValue) {
+        super(displayMappings, defaultValue, defaultSupplier);
     }
 
     @Override
@@ -45,5 +39,13 @@ public class ReadOnlyCollectionPropertyImpl<T, D extends Collection<?>> extends 
             return;
         }
         this.sendValueChange(newValue, type);
+    }
+
+    public static <V> CollectionProperty.ReadOnly<V, Collection<V>> create() {
+        return create(null);
+    }
+
+    public static <V> CollectionProperty.ReadOnly<V, Collection<V>> create(@Nullable Collection<V> displayValue) {
+        return new ReadOnlyCollectionPropertyImpl<>(t -> t, ArrayList::new, displayValue);
     }
 }

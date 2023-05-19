@@ -1,20 +1,22 @@
-package org.mose.property.impl;
+package org.mose.property.impl.number;
 
 import org.jetbrains.annotations.Nullable;
 import org.mose.property.Property;
 import org.mose.property.ValueOverrideRule;
+import org.mose.property.impl.AbstractProperty;
+import org.mose.property.impl.ValueSetType;
 
 import java.util.function.Function;
 
-public class WritePropertyImpl<T, D> extends AbstractProperty<T, D> implements Property.Write<T, D> {
+public class WriteNumberPropertyImpl<T, D extends Number> extends AbstractProperty<T, D> implements Property.Write<T, D>, Property.Number<T, D> {
 
     private final ValueOverrideRule rule;
 
-    public WritePropertyImpl(Function<T, D> displayMappings, @Nullable T defaultValue) {
+    public WriteNumberPropertyImpl(Function<T, D> displayMappings, @Nullable T defaultValue) {
         this(ValueOverrideRule.PREFER_NEWEST, displayMappings, defaultValue);
     }
 
-    public WritePropertyImpl(ValueOverrideRule rule, Function<T, D> displayMappings, @Nullable T defaultValue) {
+    public WriteNumberPropertyImpl(ValueOverrideRule rule, Function<T, D> displayMappings, @Nullable T defaultValue) {
         super(displayMappings, defaultValue);
         this.rule = rule;
     }
@@ -37,7 +39,7 @@ public class WritePropertyImpl<T, D> extends AbstractProperty<T, D> implements P
 
     @Override
     protected ReadOnly<T, D> createReadOnly(Function<T, D> displayMappings) {
-        return new ReadOnlyPropertyImpl<>(displayMappings, null);
+        return new ReadOnlyNumberPropertyImpl<>(displayMappings, null);
     }
 
     @Override
@@ -45,11 +47,11 @@ public class WritePropertyImpl<T, D> extends AbstractProperty<T, D> implements P
         this.onValueChange(value, ValueSetType.SET);
     }
 
-    public static <V> Property.Write<V, V> create() {
+    public static <V extends java.lang.Number> Write<V, V> create() {
         return create(null);
     }
 
-    public static <V> Property.Write<V, V> create(@Nullable V displayValue) {
-        return new WritePropertyImpl<>(t -> t, displayValue);
+    public static <V extends java.lang.Number> Write<V, V> create(@Nullable V displayValue) {
+        return new WriteNumberPropertyImpl<>(t -> t, displayValue);
     }
 }

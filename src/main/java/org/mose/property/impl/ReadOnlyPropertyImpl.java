@@ -11,12 +11,11 @@ public class ReadOnlyPropertyImpl<T, D> extends AbstractProperty<T, D> implement
         super(displayMapping, displayValue);
     }
 
-    public static <V> Property.ReadOnly<V, V> create() {
-        return create(null);
-    }
-
-    public static <V> Property.ReadOnly<V, V> create(@Nullable V displayValue) {
-        return new ReadOnlyPropertyImpl<>(t -> t, displayValue);
+    @Override
+    public ReadOnly<T, D> createBoundReadOnly() {
+        ReadOnlyPropertyImpl<T, D> property = new ReadOnlyPropertyImpl<>(this.displayMappings, null);
+        property.bindTo(this);
+        return property;
     }
 
     @Override
@@ -28,9 +27,15 @@ public class ReadOnlyPropertyImpl<T, D> extends AbstractProperty<T, D> implement
     }
 
     @Override
-    public ReadOnly<T, D> createBoundReadOnly() {
-        ReadOnlyPropertyImpl<T, D> property = new ReadOnlyPropertyImpl<>(this.displayMappings, null);
-        property.bindTo(this);
-        return property;
+    protected ReadOnly<T, D> createReadOnly(Function<T, D> displayMappings) {
+        return new ReadOnlyPropertyImpl<>(displayMappings, null);
+    }
+
+    public static <V> Property.ReadOnly<V, V> create() {
+        return create(null);
+    }
+
+    public static <V> Property.ReadOnly<V, V> create(@Nullable V displayValue) {
+        return new ReadOnlyPropertyImpl<>(t -> t, displayValue);
     }
 }

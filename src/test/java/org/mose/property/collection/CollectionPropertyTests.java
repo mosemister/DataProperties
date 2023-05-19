@@ -2,134 +2,121 @@ package org.mose.property.collection;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mose.property.AbstractPropertyTests;
+import org.mose.property.CollectionProperty;
 import org.mose.property.Property;
 import org.mose.property.ValueOverrideRule;
 import org.mose.property.impl.collection.WriteCollectionPropertyImpl;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.function.Supplier;
+import java.util.*;
 
-public class CollectionPropertyTests {
+public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Boolean>, Collection<Boolean>> {
 
-    private final Collection<Boolean> VALUE_A = Arrays.asList(true, false);
-    private final Collection<Boolean> VALUE_B = Arrays.asList(true, true, true);
+    @Override
+    protected Collection<Boolean> getFirstValue() {
+        return Arrays.asList(true, true, true);
+    }
 
-    private final Supplier<Property.Write<Collection<Boolean>, Collection<Boolean>>> WITH_VALUE_A = () -> new WriteCollectionPropertyImpl<>(t -> t, VALUE_A);
-    private final Supplier<Property.Write<Collection<Boolean>, Collection<Boolean>>> WITH_VALUE_A_PREFER_NEWEST = () -> new WriteCollectionPropertyImpl<>(ValueOverrideRule.PREFER_NEWEST, t -> t, VALUE_A);
-    private final Supplier<Property.Write<Collection<Boolean>, Collection<Boolean>>> WITH_VALUE_A_PREFER_SET = () -> new WriteCollectionPropertyImpl<>(ValueOverrideRule.PREFER_SET, t -> t, VALUE_A);
-    private final Supplier<Property.Write<Collection<Boolean>, Collection<Boolean>>> WITH_VALUE_A_PREFER_BOUND = () -> new WriteCollectionPropertyImpl<>(ValueOverrideRule.PREFER_BOUND, t -> t, VALUE_A);
+    @Override
+    protected Collection<Boolean> getSecondValue() {
+        return Arrays.asList(true, false, true);
+    }
+
+    @Override
+    protected Class<?>[] getReadOnlyClasses() {
+        return new Class[]{Property.ReadOnly.class, CollectionProperty.ReadOnly.class, Property.NeverNull.class};
+    }
+
+    @Override
+    protected WriteCollectionPropertyImpl<Boolean, Collection<Boolean>> createProperty(Collection<Boolean> value, ValueOverrideRule overrideRule) {
+        return new WriteCollectionPropertyImpl<>(overrideRule, t -> t, ArrayList::new, value);
+    }
 
     @Test
-    public <A> void isDefaultValueInsertedTest() {
+    public void canAddElementToProperty() {
+        List<Boolean> values = new ArrayList<>();
+        CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
 
         //act
-        Property<A, A> property = (Property<A, A>) WITH_VALUE_A.get();
+        property.add(true);
+
+        //assert
+        Assertions.assertFalse(values.isEmpty());
+        Assertions.assertTrue(values.get(0));
+
+        Collection<Boolean> internalValue = property.safeValue();
+        Assertions.assertFalse(internalValue.isEmpty());
+        Assertions.assertTrue(internalValue.iterator().next());
+    }
+
+    @Test
+    public void sendsAddEventWhenElementIsAdded() {
+        List<Boolean> values = new ArrayList<>();
+        CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
+        List<Boolean> onEvent = new LinkedList<>();
+        property.registerCollectionAddEvent((property1, current, changing) -> onEvent.add(true));
+
+        //act
+        property.add(true);
+
+        //assert
+        Assertions.assertFalse(onEvent.isEmpty());
+    }
+
+    @Test
+    public void sendsRemoveEventWhenElementIsAdded() {
+        List<Boolean> values = new ArrayList<>();
+        values.add(true);
+        CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
+        List<Boolean> onEvent = new LinkedList<>();
+        property.registerCollectionRemoveEvent((property1, current, changing) -> onEvent.add(true));
+
+        //act
+        property.remove(true);
+
+        //assert
+        Assertions.assertFalse(onEvent.isEmpty());
+    }
+
+    @Test
+    public void canRemoveElementToProperty() {
+        List<Boolean> values = new ArrayList<>();
+        values.add(true);
+        CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
+
+        //act
+        property.remove(true);
+
+        //assert
+        Assertions.assertTrue(values.isEmpty());
+
+        Collection<Boolean> internalValue = property.safeValue();
+        Assertions.assertTrue(internalValue.isEmpty());
+    }
+
+    @Test
+    public void attemptToReadNullValue() {
+        Property.NeverNull<Collection<Boolean>, Collection<Boolean>> property = this.createProperty(null, ValueOverrideRule.PREFER_NEWEST);
+
+        //act
+        Collection<Boolean> value = property.safeValue();
+
+        //assert
+        Assertions.assertEquals(Collections.emptyList(), value);
+        Assertions.assertTrue(property.value().isPresent());
+        Assertions.assertEquals(Collections.emptyList(), property.value().get());
+    }
+
+    @Test
+    public void attemptToSetNullValue() {
+        Property.Write<Collection<Boolean>, Collection<Boolean>> property = this.createProperty(Arrays.asList(false, false), ValueOverrideRule.PREFER_NEWEST);
+
+        //act
+        property.setValue(null);
 
         //assert
         Assertions.assertTrue(property.value().isPresent());
-        Assertions.assertEquals(VALUE_A, property.value().get());
+        Assertions.assertEquals(Collections.emptyList(), property.value().get());
     }
 
-    @Test
-    public <A> void canChangeValueTest() {
-        Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A.get();
-
-        //act
-        property.setValue((A) VALUE_B);
-
-        //assert
-        Assertions.assertTrue(property.value().isPresent());
-        Assertions.assertEquals(VALUE_B, property.value().get());
-    }
-
-    @Test
-    public <A> void canCreateBoundReadOnlyTest() {
-        Property<A, A> property = (Property<A, A>) WITH_VALUE_A.get();
-
-        //act
-        Property.ReadOnly<A, A> bound = property.createBoundReadOnly();
-
-        //assert
-        Assertions.assertTrue(bound.value().isPresent());
-        Assertions.assertEquals(VALUE_A, bound.value().get());
-    }
-
-    @Test
-    public <A> void canChangeBoundValueTest() {
-        Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A.get();
-
-        //act
-        Property.ReadOnly<A, A> bound = property.createBoundReadOnly();
-        property.setValue((A) VALUE_B);
-
-        //assert
-        Assertions.assertTrue(bound.value().isPresent());
-        Assertions.assertEquals(VALUE_B, bound.value().get());
-    }
-
-    @Test
-    public <A> void canChangeValueWithNewestRuleTest() {
-        Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_NEWEST.get();
-
-        //act
-        property.setValue((A) VALUE_B);
-
-        //assert
-        Assertions.assertTrue(property.value().isPresent());
-        Assertions.assertEquals(VALUE_B, property.value().get());
-    }
-
-    @Test
-    public <A> void canChangeValueWithSetRuleTest() {
-        Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_SET.get();
-
-        //act
-        property.setValue((A) VALUE_B);
-
-        //assert
-        Assertions.assertTrue(property.value().isPresent());
-        Assertions.assertEquals(VALUE_B, property.value().get());
-    }
-
-    @Test
-    public <A> void canChangeValueWithSetRuleWithoutBoundsOverridingTest() {
-        Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_SET.get();
-        Property.Write<A, A> bound = (Property.Write<A, A>) WITH_VALUE_A_PREFER_SET.get();
-        bound.bindTo(property);
-
-        //act
-        property.setValue((A) VALUE_B);
-
-        //assert
-        Assertions.assertTrue(bound.value().isPresent());
-        Assertions.assertEquals(VALUE_A, bound.value().get());
-    }
-
-    @Test
-    public <A> void canChangeValueWithBoundRuleTest() {
-        Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_BOUND.get();
-
-        //act
-        property.setValue((A) VALUE_B);
-
-        //assert
-        Assertions.assertTrue(property.value().isPresent());
-        Assertions.assertEquals(VALUE_B, property.value().get());
-    }
-
-    @Test
-    public <A> void canChangeValueWithBoundRuleWithoutSetOverridingTest() {
-        Property.Write<A, A> property = (Property.Write<A, A>) WITH_VALUE_A_PREFER_SET.get();
-        Property.Write<A, A> bound = (Property.Write<A, A>) WITH_VALUE_A_PREFER_BOUND.get();
-        bound.bindTo(property);
-
-        //act
-        property.setValue((A) VALUE_B);
-        bound.setValue(null);
-
-        //assert
-        Assertions.assertTrue(bound.value().isPresent());
-        Assertions.assertEquals(VALUE_B, bound.value().get());
-    }
 }
