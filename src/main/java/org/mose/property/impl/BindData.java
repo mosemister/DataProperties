@@ -6,17 +6,18 @@ import java.util.function.Function;
 
 public class BindData<A, B, C, D> {
 
-    private final AbstractProperty<C, D> to;
-    private final AbstractProperty<A, B> from;
+    private final BaseProperty<C, D> to;
+    private final BaseProperty<A, B> from;
     private final Function<A, C> mapping;
 
-    public BindData(@NotNull AbstractProperty<A, B> from, @NotNull AbstractProperty<C, D> to, @NotNull Function<A, C> mapping) {
+
+    public BindData(@NotNull BaseProperty<A, B> from, @NotNull BaseProperty<C, D> to, @NotNull Function<A, C> mapping) {
         this.from = from;
         this.to = to;
         this.mapping = mapping;
     }
 
-    public AbstractProperty<A, B> from() {
+    public BaseProperty<A, B> from() {
         return this.from;
     }
 
@@ -28,7 +29,7 @@ public class BindData<A, B, C, D> {
         this.to.onValueChange(this.mapping.apply(value), type);
     }
 
-    public AbstractProperty<C, D> to() {
+    public BaseProperty<C, D> to() {
         return this.to;
     }
 

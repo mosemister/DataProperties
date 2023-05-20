@@ -1,6 +1,7 @@
 package org.mose.property;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 public abstract class AbstractPropertyTests<T, D> {
@@ -49,6 +50,20 @@ public abstract class AbstractPropertyTests<T, D> {
                 Assertions.fail("ReadOnly class does not implement " + clazz.getName());
             }
         }
+    }
+
+    @Test
+    public void throwsErrorWhenLocked() {
+        Property.Write<T, D> property = createDefaultProperty();
+        Property.Write<T, D> bindingTo = createDefaultProperty();
+        Assumptions.assumeTrue(bindingTo.canBind(), "Property cannot be bound");
+
+        //act
+        bindingTo.lockBind();
+
+        //assert
+        Assertions.assertTrue(bindingTo.isBindLocked());
+        Assertions.assertThrows(IllegalStateException.class, () -> bindingTo.bindTo(property));
     }
 
     @Test

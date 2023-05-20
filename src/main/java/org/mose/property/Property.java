@@ -58,6 +58,12 @@ public interface Property<T, D> {
         this.bindTo(property, t -> t);
     }
 
+    boolean canBind();
+
+    boolean isBindLocked();
+
+    void lockBind();
+
     Optional<Property<?, ?>> bound();
 
     ReadOnly<T, D> createBoundReadOnly();
