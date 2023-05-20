@@ -2,12 +2,12 @@ package org.mose.property.impl.collection;
 
 import org.jetbrains.annotations.NotNull;
 import org.mose.property.CollectionProperty;
-import org.mose.property.Property;
 import org.mose.property.event.CollectionUpdateEvent;
 import org.mose.property.impl.BindData;
 import org.mose.property.impl.nevernull.AbstractNeverNullProperty;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.function.BiConsumer;
@@ -46,29 +46,45 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
     }
 
     protected boolean sendElementsAdded(Collection<T> added) {
+        Collection<T> value = this.lastKnownValue;
+        if (null == value) {
+            value = this.valueImpl().orElseGet(Collections::emptyList);
+        }
+        final Collection<T> finalValue = value;
         this.bindData.parallelStream().filter(data -> data.to() instanceof AbstractCollectionProperty).forEach(data -> {
             this.sendElementChange(data, added, AbstractCollectionProperty::onElementsAdded);
         });
         this.indexUpdateEvents
                 .parallelStream()
                 .filter(event -> event instanceof CollectionUpdateEvent.CollectionAddIndexEvent)
-                .forEach(event -> event.handle(this, this.lastKnownValue, added));
-        return this.lastKnownValue.addAll(added);
+                .forEach(event -> event.handle(this, finalValue, added));
+        return finalValue.addAll(added);
     }
 
     protected boolean sendElementsRemoved(Collection<T> removed) {
+        Collection<T> value = this.lastKnownValue;
+        if (null == value) {
+            value = this.valueImpl().orElseGet(Collections::emptyList);
+        }
+        final Collection<T> finalValue = value;
+
         this.bindData.parallelStream().filter(data -> data.to() instanceof AbstractCollectionProperty).forEach(data -> {
             this.sendElementChange(data, removed, AbstractCollectionProperty::onElementsRemoved);
         });
         this.indexUpdateEvents
                 .parallelStream()
                 .filter(event -> event instanceof CollectionUpdateEvent.CollectionRemoveIndexEvent)
-                .forEach(event -> event.handle(this, this.lastKnownValue, removed));
-        return this.lastKnownValue.removeAll(removed);
+                .forEach(event -> event.handle(this, finalValue, removed));
+        return value.removeAll(removed);
     }
 
     @Override
-    protected Property.ReadOnly<Collection<T>, D> createReadOnly(Function<Collection<T>, D> displayMappings) {
+    protected ReadOnlyCollectionPropertyImpl<T, D> createReadOnly(Function<Collection<T>, D> displayMappings) {
         return new ReadOnlyCollectionPropertyImpl<>(this.displayMappings, this.defaultSupplier, null);
+    }
+
+    @Override
+    public ReadOnlyCollectionPropertyImpl<T, D> createBoundReadOnly() {
+        return (ReadOnlyCollectionPropertyImpl<T, D>) super.createBoundReadOnly();
     }
 }

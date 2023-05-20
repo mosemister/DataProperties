@@ -2,8 +2,6 @@ package org.mose.property;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mose.property.Property;
-import org.mose.property.ValueOverrideRule;
 
 public abstract class AbstractPropertyTests<T, D> {
 
@@ -40,6 +38,40 @@ public abstract class AbstractPropertyTests<T, D> {
                 Assertions.fail("ReadOnly class does not implement " + clazz.getName());
             }
         }
+    }
+
+    @Test
+    public void doesReadOnlyCreateAValidReadOnlyClass() {
+        Property.ReadOnly<?, ?> readOnlyProperty = createDefaultProperty().createBoundReadOnly().createBoundReadOnly();
+
+        for (Class<?> clazz : this.getReadOnlyClasses()) {
+            if (!clazz.isInstance(readOnlyProperty)) {
+                Assertions.fail("ReadOnly class does not implement " + clazz.getName());
+            }
+        }
+    }
+
+    @Test
+    public void isReadOnlyCreateBound() {
+        Property.Write<?, ?> property = createDefaultProperty();
+        Property.ReadOnly<?, ?> readOnly = property.createBoundReadOnly();
+
+        //assert
+        Assertions.assertTrue(readOnly.bound().isPresent());
+        Assertions.assertFalse(property.bound().isPresent());
+        Assertions.assertEquals(property, readOnly.bound().get());
+    }
+
+    @Test
+    public void canRemoveBound() {
+        Property.Write<?, ?> property = createDefaultProperty();
+        Property.ReadOnly<?, ?> readOnly = property.createBoundReadOnly();
+
+        //act
+        readOnly.removeBind();
+
+        //assert
+        Assertions.assertFalse(readOnly.bound().isPresent());
     }
 
     @Test

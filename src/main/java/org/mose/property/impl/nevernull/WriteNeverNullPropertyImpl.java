@@ -42,19 +42,19 @@ public class WriteNeverNullPropertyImpl<T, D> extends AbstractNeverNullProperty<
         this.onValueChange(value, ValueSetType.SET);
     }
 
-    public static <V> Write<V, V> create(Supplier<V> defaultSupplier) {
+    public static <V> WriteNeverNullPropertyImpl<V, V> create(Supplier<V> defaultSupplier) {
         return create(defaultSupplier, null);
     }
 
-    public static <V> Write<V, V> create(Supplier<V> defaultSupplier, @Nullable V displayValue) {
+    public static <V> WriteNeverNullPropertyImpl<V, V> create(Supplier<V> defaultSupplier, @Nullable V displayValue) {
         return new WriteNeverNullPropertyImpl<>(t -> t, defaultSupplier, displayValue);
     }
 
-    public static Write<Boolean, Boolean> bool() {
+    public static WriteNeverNullPropertyImpl<Boolean, Boolean> bool() {
         return bool(false);
     }
 
-    public static Write<Boolean, Boolean> bool(boolean defaultValue) {
+    public static WriteNeverNullPropertyImpl<Boolean, Boolean> bool(boolean defaultValue) {
         return create(() -> false, defaultValue);
     }
 }

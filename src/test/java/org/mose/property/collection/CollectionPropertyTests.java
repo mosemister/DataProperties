@@ -33,6 +33,22 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
     }
 
     @Test
+    public void canSetElementToProperty() {
+        List<Boolean> values = new ArrayList<>();
+        CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
+
+        //act
+        property.setValue(true, false);
+
+        //assert
+        Collection<Boolean> internalValue = property.safeValue();
+        Assertions.assertEquals(2, internalValue.size());
+        Iterator<Boolean> i = internalValue.iterator();
+        Assertions.assertTrue(i.next());
+        Assertions.assertFalse(i.next());
+    }
+
+    @Test
     public void canAddElementToProperty() {
         List<Boolean> values = new ArrayList<>();
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
@@ -64,12 +80,43 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
     }
 
     @Test
-    public void sendsRemoveEventWhenElementIsAdded() {
+    public void sendsAddEventOnBoundWhenElementIsAdded() {
+        List<Boolean> values = new ArrayList<>();
+        CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
+        CollectionProperty.ReadOnly<Boolean, Collection<Boolean>> boundProperty = property.createBoundReadOnly();
+        List<Boolean> onEvent = new LinkedList<>();
+        boundProperty.registerCollectionAddEvent((property1, current, changing) -> onEvent.add(true));
+
+        //act
+        property.add(true);
+
+        //assert
+        Assertions.assertFalse(onEvent.isEmpty());
+    }
+
+    @Test
+    public void sendsRemoveEventWhenElementIsRemoved() {
         List<Boolean> values = new ArrayList<>();
         values.add(true);
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
         List<Boolean> onEvent = new LinkedList<>();
         property.registerCollectionRemoveEvent((property1, current, changing) -> onEvent.add(true));
+
+        //act
+        property.remove(true);
+
+        //assert
+        Assertions.assertFalse(onEvent.isEmpty());
+    }
+
+    @Test
+    public void sendsRemoveEventOnBoundPropertyWhenElementIsRemoved() {
+        List<Boolean> values = new ArrayList<>();
+        values.add(true);
+        CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
+        CollectionProperty.ReadOnly<Boolean, Collection<Boolean>> boundProperty = property.createBoundReadOnly();
+        List<Boolean> onEvent = new LinkedList<>();
+        boundProperty.registerCollectionRemoveEvent((property1, current, changing) -> onEvent.add(true));
 
         //act
         property.remove(true);

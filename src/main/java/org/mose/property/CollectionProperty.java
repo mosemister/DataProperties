@@ -43,4 +43,6 @@ public interface CollectionProperty<T, D extends Collection<?>> extends Property
 
     void registerCollectionRemoveEvent(CollectionUpdateEvent.CollectionRemoveIndexEvent<T> removeEvent);
 
+    @Override
+    CollectionProperty.ReadOnly<T, D> createBoundReadOnly();
 }

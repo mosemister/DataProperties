@@ -16,6 +16,10 @@ public class WriteCollectionPropertyImpl<T, D extends Collection<?>> extends Abs
 
     private final ValueOverrideRule rule;
 
+    public WriteCollectionPropertyImpl(Function<Collection<T>, D> displayMapping, Supplier<D> defaultSupplier) {
+        this(displayMapping, defaultSupplier, null);
+    }
+
     public WriteCollectionPropertyImpl(Function<Collection<T>, D> displayMappings, Supplier<D> defaultSupplier, @Nullable Collection<T> collection) {
         this(ValueOverrideRule.PREFER_NEWEST, displayMappings, defaultSupplier, collection);
     }
@@ -76,7 +80,7 @@ public class WriteCollectionPropertyImpl<T, D extends Collection<?>> extends Abs
         return create(null);
     }
 
-    public static <V> CollectionProperty.Write<V, Collection<V>> create(@Nullable Collection<V> displayValue) {
+    public static <V> WriteCollectionPropertyImpl<V, Collection<V>> create(@Nullable Collection<V> displayValue) {
         return new WriteCollectionPropertyImpl<>(t -> t, ArrayList::new, displayValue);
     }
 }

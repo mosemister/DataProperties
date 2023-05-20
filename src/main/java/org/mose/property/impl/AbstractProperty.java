@@ -88,7 +88,7 @@ public abstract class AbstractProperty<T, D> implements Property<T, D> {
         return this.valueImpl();
     }
 
-    private <C> Optional<T> valueImpl() {
+    protected Optional<T> valueImpl() {
         if (null == this.boundTo) {
             return Optional.ofNullable(this.lastKnownValue);
         }

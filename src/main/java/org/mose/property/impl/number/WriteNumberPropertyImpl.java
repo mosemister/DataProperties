@@ -47,11 +47,11 @@ public class WriteNumberPropertyImpl<T, D extends Number> extends AbstractProper
         this.onValueChange(value, ValueSetType.SET);
     }
 
-    public static <V extends java.lang.Number> Write<V, V> create() {
+    public static <V extends java.lang.Number> WriteNumberPropertyImpl<V, V> create() {
         return create(null);
     }
 
-    public static <V extends java.lang.Number> Write<V, V> create(@Nullable V displayValue) {
+    public static <V extends java.lang.Number> WriteNumberPropertyImpl<V, V> create(@Nullable V displayValue) {
         return new WriteNumberPropertyImpl<>(t -> t, displayValue);
     }
 }

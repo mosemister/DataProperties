@@ -10,6 +10,7 @@ import org.mose.property.impl.nevernull.ReadOnlyNeverNullPropertyImpl;
 import org.mose.property.impl.nevernull.WriteNeverNullPropertyImpl;
 import org.mose.property.impl.number.ReadOnlyNumberPropertyImpl;
 import org.mose.property.impl.number.WriteNumberPropertyImpl;
+import org.mose.property.utils.ClassUtils;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -34,9 +35,7 @@ public interface Property<T, D> {
         D safeValue();
 
         @Override
-        default Optional<D> value() {
-            return Optional.of(this.safeValue());
-        }
+        Optional<D> value();
     }
 
     interface ReadOnly<T, D> extends Property<T, D> {
@@ -71,27 +70,33 @@ public interface Property<T, D> {
 
     ValueOverrideRule valueOverrideRule();
 
-    static Class<? extends Property> getReadOnlyPreferedClass(Class<?> clazz) {
-        if (Number.class.isAssignableFrom(clazz)) {
+    static Class<? extends Property.ReadOnly> getReadOnlyPreferedClass(Class<?> clazz) {
+        if (clazz.isPrimitive()) {
+            clazz = ClassUtils.fromPrimitive(clazz);
+        }
+        if (java.lang.Number.class.isAssignableFrom(clazz)) {
             return ReadOnlyNumberPropertyImpl.class;
         }
         if (Collection.class.isAssignableFrom(clazz)) {
             return ReadOnlyCollectionPropertyImpl.class;
         }
-        if (Boolean.class.isAssignableFrom(clazz) || boolean.class.equals(clazz)) {
+        if (Boolean.class.equals(clazz)) {
             return ReadOnlyNeverNullPropertyImpl.class;
         }
         return ReadOnlyPropertyImpl.class;
     }
 
-    static Class<? extends Property> getWritePreferedClass(Class<?> clazz) {
-        if (Number.class.isAssignableFrom(clazz)) {
+    static Class<? extends Property.Write> getWritePreferedClass(Class<?> clazz) {
+        if (clazz.isPrimitive()) {
+            clazz = ClassUtils.fromPrimitive(clazz);
+        }
+        if (java.lang.Number.class.isAssignableFrom(clazz)) {
             return WriteNumberPropertyImpl.class;
         }
         if (Collection.class.isAssignableFrom(clazz)) {
             return WriteCollectionPropertyImpl.class;
         }
-        if (Boolean.class.isAssignableFrom(clazz) || boolean.class.equals(clazz)) {
+        if (Boolean.class.equals(clazz)) {
             return WriteNeverNullPropertyImpl.class;
         }
         return WritePropertyImpl.class;

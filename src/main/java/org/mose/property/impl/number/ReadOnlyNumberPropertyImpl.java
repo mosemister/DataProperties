@@ -14,6 +14,13 @@ public class ReadOnlyNumberPropertyImpl<T, D extends Number> extends AbstractPro
     }
 
     @Override
+    public ReadOnly<T, D> createBoundReadOnly() {
+        ReadOnlyNumberPropertyImpl<T, D> property = this.createReadOnly(this.displayMappings);
+        property.bindTo(this);
+        return property;
+    }
+
+    @Override
     protected void onValueChange(T newValue, ValueSetType type) {
         if (this.value().map(v -> v.equals(newValue)).orElse(false)) {
             return;
@@ -22,15 +29,8 @@ public class ReadOnlyNumberPropertyImpl<T, D extends Number> extends AbstractPro
     }
 
     @Override
-    protected ReadOnly<T, D> createReadOnly(Function<T, D> displayMappings) {
+    protected ReadOnlyNumberPropertyImpl<T, D> createReadOnly(Function<T, D> displayMappings) {
         return new ReadOnlyNumberPropertyImpl<>(displayMappings, null);
-    }
-
-    @Override
-    public ReadOnly<T, D> createBoundReadOnly() {
-        ReadOnlyNumberPropertyImpl<T, D> property = new ReadOnlyNumberPropertyImpl<>(this.displayMappings, null);
-        property.bindTo(this);
-        return property;
     }
 
     public static <V extends java.lang.Number> ReadOnly<V, V> create() {

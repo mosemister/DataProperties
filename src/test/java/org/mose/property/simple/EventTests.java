@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.mose.property.Property;
 import org.mose.property.impl.ReadOnlyPropertyImpl;
 import org.mose.property.impl.WritePropertyImpl;
+import org.mose.property.impl.number.ReadOnlyNumberPropertyImpl;
+import org.mose.property.impl.number.WriteNumberPropertyImpl;
 
 public class EventTests {
 
@@ -46,6 +48,19 @@ public class EventTests {
         //act
         bound.registerValueChangeEvent((targetProperty, currentValue, type, newValue) -> array[0] = true);
         property.setValue(2);
+
+        //assert
+        Assertions.assertFalse(array[0]);
+    }
+
+    @Test
+    public void doesEventFireForBoundChangeWhenNoChangeOccursOnNumberProperty() {
+        WriteNumberPropertyImpl<Integer, Integer> property = WriteNumberPropertyImpl.create(1);
+        boolean[] array = new boolean[1];
+
+        //act
+        property.registerValueChangeEvent((targetProperty, currentValue, type, newValue) -> array[0] = true);
+        property.setValue(1);
 
         //assert
         Assertions.assertFalse(array[0]);
