@@ -4,10 +4,12 @@ import org.jetbrains.annotations.NotNull;
 import org.mose.property.CollectionProperty;
 import org.mose.property.event.CollectionUpdateEvent;
 import org.mose.property.impl.BindData;
+import org.mose.property.impl.ValueSetType;
 import org.mose.property.impl.nevernull.AbstractNeverNullProperty;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.function.BiConsumer;
@@ -58,7 +60,10 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
                 .parallelStream()
                 .filter(event -> event instanceof CollectionUpdateEvent.CollectionAddIndexEvent)
                 .forEach(event -> event.handle(this, finalValue, added));
-        return finalValue.addAll(added);
+        Collection<T> originalValues = new LinkedList<>(value);
+        boolean result = finalValue.addAll(added);
+        this.changeValueEvents.parallelStream().forEach(event -> event.handle(this, originalValues, ValueSetType.SET, finalValue));
+        return result;
     }
 
     protected boolean sendElementsRemoved(Collection<T> removed) {
@@ -75,7 +80,10 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
                 .parallelStream()
                 .filter(event -> event instanceof CollectionUpdateEvent.CollectionRemoveIndexEvent)
                 .forEach(event -> event.handle(this, finalValue, removed));
-        return value.removeAll(removed);
+        Collection<T> originalValues = new LinkedList<>(value);
+        boolean result = value.removeAll(removed);
+        this.changeValueEvents.parallelStream().forEach(event -> event.handle(this, originalValues, ValueSetType.SET, finalValue));
+        return result;
     }
 
     @Override

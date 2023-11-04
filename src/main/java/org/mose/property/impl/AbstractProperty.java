@@ -14,7 +14,7 @@ import java.util.function.Function;
 public abstract class AbstractProperty<T, D> extends BaseProperty<T, D> implements Property<T, D> {
 
     protected final Function<T, D> displayMappings;
-    private final Queue<PropertyChangeEvent<T>> changeValueEvents = new LinkedTransferQueue<>();
+    protected final Queue<PropertyChangeEvent<T>> changeValueEvents = new LinkedTransferQueue<>();
     protected T lastKnownValue;
     protected @NotNull ValueSetType lastKnownValueSetAs;
     @Nullable
