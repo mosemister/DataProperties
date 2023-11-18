@@ -21,27 +21,29 @@ import java.util.function.Function;
 public interface Property<T, D> {
 
     interface Number<T, D extends java.lang.Number> extends Property<T, D> {
-        default OptionalInt asInt() {
+        default @NotNull OptionalInt asInt() {
             return this.value().map(n -> OptionalInt.of(n.intValue())).orElse(OptionalInt.empty());
         }
 
-        default OptionalDouble asDouble() {
+        default @NotNull OptionalDouble asDouble() {
             return this.value().map(n -> OptionalDouble.of(n.doubleValue())).orElse(OptionalDouble.empty());
         }
     }
 
     interface NeverNull<T, D> extends Property<T, D> {
 
+        @NotNull
         D safeValue();
 
         @Override
+        @NotNull
         Optional<D> value();
     }
 
     interface ReadOnly<T, D> extends Property<T, D> {
 
         @Override
-        default ValueOverrideRule valueOverrideRule() {
+        default @NotNull ValueOverrideRule valueOverrideRule() {
             return ValueOverrideRule.PREFER_BOUND;
         }
     }
@@ -64,19 +66,25 @@ public interface Property<T, D> {
 
     void lockBind();
 
+    @NotNull
     Optional<Property<?, ?>> bound();
 
+    @NotNull
     ReadOnly<T, D> createBoundReadOnly();
 
-    void registerValueChangeEvent(PropertyChangeEvent<T> event);
+    void registerValueChangeEvent(@NotNull PropertyChangeEvent<T> event);
+
+    void unregisterValueChangeEvent(@NotNull PropertyChangeEvent<?> event);
 
     void removeBind();
 
+    @NotNull
     Optional<D> value();
 
+    @NotNull
     ValueOverrideRule valueOverrideRule();
 
-    static Class<? extends Property.ReadOnly> getReadOnlyPreferedClass(Class<?> clazz) {
+    static @NotNull Class<? extends Property.ReadOnly> getReadOnlyPreferedClass(@NotNull Class<?> clazz) {
         if (clazz.isPrimitive()) {
             clazz = ClassUtils.fromPrimitive(clazz);
         }
@@ -92,7 +100,7 @@ public interface Property<T, D> {
         return ReadOnlyPropertyImpl.class;
     }
 
-    static Class<? extends Property.Write> getWritePreferedClass(Class<?> clazz) {
+    static @NotNull Class<? extends Property.Write> getWritePreferedClass(@NotNull Class<?> clazz) {
         if (clazz.isPrimitive()) {
             clazz = ClassUtils.fromPrimitive(clazz);
         }

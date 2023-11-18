@@ -87,6 +87,11 @@ public class UnknownProperty<T, D> extends BaseProperty<T, D> implements Propert
     }
 
     @Override
+    public void unregisterValueChangeEvent(@NotNull PropertyChangeEvent<?> event) {
+        this.changeValueEvents.remove(event);
+    }
+
+    @Override
     public void removeBind() {
     }
 

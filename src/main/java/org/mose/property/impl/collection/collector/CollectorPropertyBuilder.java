@@ -14,6 +14,16 @@ public class CollectorPropertyBuilder<T, D> {
 
     private final Collection<CollectorValue<?, T>> queue = new LinkedTransferQueue<>();
     private Function<Stream<T>, D> collector;
+    private boolean writable;
+
+    public boolean isWritable() {
+        return this.writable;
+    }
+
+    public CollectorPropertyBuilder<T, D> setWritable(boolean writable) {
+        this.writable = writable;
+        return this;
+    }
 
     public Function<Stream<T>, D> collector() {
         return this.collector;
@@ -34,7 +44,10 @@ public class CollectorPropertyBuilder<T, D> {
         return this;
     }
 
-    public ReadOnlyCollectorProperty<T, D> build() {
+    public AbstractCollectorProperty<T, D> build() {
+        if (this.writable) {
+            return new WritableCollectorProperty<>(this.collector, this.queue);
+        }
         return new ReadOnlyCollectorProperty<>(this.collector, this.queue);
     }
 
@@ -55,10 +68,10 @@ public class CollectorPropertyBuilder<T, D> {
     }
 
     public CollectorPropertyBuilder<T, D> addSingle(Property<?, T> property) {
-        return this.addQueue(new CollectorValue<T, T>(property, Stream::of));
+        return this.addQueue(new CollectorValue<>(property, Stream::of));
     }
 
-    public <C extends Collection<T>> CollectorPropertyBuilder<T, D> addCollection(CollectionProperty<T, C> collection) {
+    public <C extends Collection<T>> CollectorPropertyBuilder<T, D> addCollection(CollectionProperty<?, C> collection) {
         return this.addQueue(new CollectorValue<>(collection, Collection::stream));
     }
 

@@ -11,7 +11,7 @@ public class CollectorValue<E, T> {
     private final @NotNull Property<?, E> property;
     private final @NotNull Function<E, Stream<T>> toStream;
 
-    public CollectorValue(@NotNull Property<?, E> property, Function<E, Stream<T>> toStream) {
+    public CollectorValue(@NotNull Property<?, E> property, @NotNull Function<E, Stream<T>> toStream) {
         this.property = property;
         this.toStream = toStream;
     }

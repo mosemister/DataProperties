@@ -2,19 +2,21 @@ package org.mose.property.impl.collection;
 
 import org.jetbrains.annotations.NotNull;
 import org.mose.property.CollectionProperty;
+import org.mose.property.Property;
 import org.mose.property.event.CollectionUpdateEvent;
 import org.mose.property.impl.BindData;
 import org.mose.property.impl.ValueSetType;
+import org.mose.property.impl.collection.collector.AbstractCollectorProperty;
+import org.mose.property.impl.collection.collector.CollectorPropertyBuilder;
+import org.mose.property.impl.collection.collector.WritableCollectorProperty;
 import org.mose.property.impl.nevernull.AbstractNeverNullProperty;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class AbstractCollectionProperty<T, D extends Collection<?>> extends AbstractNeverNullProperty<Collection<T>, D> implements CollectionProperty<T, D> {
 
@@ -36,6 +38,28 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
     @Override
     public void registerCollectionRemoveEvent(CollectionUpdateEvent.CollectionRemoveIndexEvent<T> removeEvent) {
         this.indexUpdateEvents.offer(removeEvent);
+    }
+
+    @Override
+    public @NotNull <B> WritableCollectorProperty<B, Collection<B>> createCollectingBind(@NotNull Function<T, Property<?, B>> func) {
+        Collection<Property<?, B>> collection = this.valueImpl().orElse(Collections.emptyList()).stream().map(func).collect(Collectors.toList());
+        CollectorPropertyBuilder<B, Collection<B>> builder = new CollectorPropertyBuilder<>();
+        collection.forEach(builder::addSingle);
+        builder.setCollector(stream -> stream.collect(Collectors.toList()));
+        builder.setWritable(true);
+        return (WritableCollectorProperty<B, Collection<B>>) builder.build();
+    }
+
+    @Override
+    public @NotNull <B extends Collection<C>, C> WritableCollectorProperty<C, Collection<C>> createFlatCollectingBind(@NotNull Function<T, CollectionProperty<?, Collection<C>>> func) {
+        Collection<T> collection = this.valueImpl().orElse(Collections.emptyList());
+        List<CollectionProperty<?, Collection<C>>> properties = collection.stream().map(func).collect(Collectors.toList());
+        CollectorPropertyBuilder<C, Collection<C>> builder = new CollectorPropertyBuilder<>();
+        properties.forEach(builder::addCollection);
+        builder.setCollector(cStream -> cStream.collect(Collectors.toList()));
+        builder.setWritable(true);
+        AbstractCollectorProperty<C, Collection<C>> result = builder.build();
+        return (WritableCollectorProperty<C, Collection<C>>) result;
     }
 
     private <X, Z extends Collection<?>> void sendElementChange(BindData<Collection<T>, D, ?, ?> bindData,

@@ -3,7 +3,9 @@ package org.mose.property.impl.collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mose.property.CollectionProperty;
+import org.mose.property.Property;
 import org.mose.property.impl.ValueSetType;
+import org.mose.property.impl.collection.collector.WritableCollectorProperty;
 
 import java.util.ArrayList;
 import java.util.Collection;

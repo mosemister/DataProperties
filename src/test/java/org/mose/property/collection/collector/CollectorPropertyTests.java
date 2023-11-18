@@ -3,6 +3,7 @@ package org.mose.property.collection.collector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mose.property.impl.collection.WriteCollectionPropertyImpl;
+import org.mose.property.impl.collection.collector.AbstractCollectorProperty;
 import org.mose.property.impl.collection.collector.CollectorPropertyBuilder;
 import org.mose.property.impl.collection.collector.ReadOnlyCollectorProperty;
 
@@ -23,7 +24,7 @@ public class CollectorPropertyTests {
         WriteCollectionPropertyImpl<Boolean, Collection<Boolean>> firstCollection = WriteCollectionPropertyImpl.create(new ArrayList<>(Arrays.asList(true, false)));
         WriteCollectionPropertyImpl<Boolean, Collection<Boolean>> secondCollection = WriteCollectionPropertyImpl.create(Arrays.asList(false, true));
 
-        ReadOnlyCollectorProperty<Boolean, Collection<Boolean>> property = toBuilder().addCollection(firstCollection).addCollection(secondCollection).build();
+        AbstractCollectorProperty<Boolean, Collection<Boolean>> property = toBuilder().addCollection(firstCollection).addCollection(secondCollection).build();
 
         //pre-act
         Collection<Boolean> value = property.value().orElse(Collections.emptyList());
@@ -46,7 +47,7 @@ public class CollectorPropertyTests {
         WriteCollectionPropertyImpl<Boolean, Collection<Boolean>> firstCollection = WriteCollectionPropertyImpl.create(Arrays.asList(true, false));
         WriteCollectionPropertyImpl<Boolean, Collection<Boolean>> secondCollection = WriteCollectionPropertyImpl.create(Arrays.asList(false, true));
 
-        ReadOnlyCollectorProperty<Boolean, Collection<Boolean>> property = toBuilder().addCollection(firstCollection).addCollection(secondCollection).build();
+        AbstractCollectorProperty<Boolean, Collection<Boolean>> property = toBuilder().addCollection(firstCollection).addCollection(secondCollection).build();
 
         //act
         Collection<Boolean> value = property.value().orElse(Collections.emptyList());

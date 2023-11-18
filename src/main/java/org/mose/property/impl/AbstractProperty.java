@@ -81,21 +81,28 @@ public abstract class AbstractProperty<T, D> extends BaseProperty<T, D> implemen
         this.isLocked = true;
     }
 
+    @NotNull
     @Override
     public Optional<Property<?, ?>> bound() {
         return Optional.ofNullable(this.boundTo).map(BindData::from);
     }
 
+    @NotNull
     @Override
     public ReadOnly<T, D> createBoundReadOnly() {
-        ReadOnly<T, D> property = createReadOnly(this.displayMappings);
+        ReadOnly<T, D> property = this.createReadOnly(this.displayMappings);
         property.bindTo(this);
         return property;
     }
 
     @Override
-    public void registerValueChangeEvent(PropertyChangeEvent<T> event) {
+    public void registerValueChangeEvent(@NotNull PropertyChangeEvent<T> event) {
         this.changeValueEvents.offer(event);
+    }
+
+    @Override
+    public void unregisterValueChangeEvent(@NotNull PropertyChangeEvent<?> event) {
+        this.changeValueEvents.remove(event);
     }
 
     @Override
