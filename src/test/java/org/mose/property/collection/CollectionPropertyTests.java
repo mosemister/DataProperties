@@ -34,7 +34,7 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
 
     @Test
     public void canSetElementToProperty() {
-        List<Boolean> values = new ArrayList<>();
+        Collection<Boolean> values = new ArrayList<>();
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
 
         //act
@@ -50,24 +50,22 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
 
     @Test
     public void canAddElementToProperty() {
-        List<Boolean> values = new ArrayList<>();
+        Collection<Boolean> values = new ArrayList<>();
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
 
         //act
         property.add(true);
 
         //assert
-        Assertions.assertFalse(values.isEmpty());
-        Assertions.assertTrue(values.get(0));
+        List<Boolean> result = (List<Boolean>) property.safeValue();
 
-        Collection<Boolean> internalValue = property.safeValue();
-        Assertions.assertFalse(internalValue.isEmpty());
-        Assertions.assertTrue(internalValue.iterator().next());
+        Assertions.assertFalse(result.isEmpty());
+        Assertions.assertTrue(result.get(0));
     }
 
     @Test
     public void sendsAddEventWhenElementIsAdded() {
-        List<Boolean> values = new ArrayList<>();
+        Collection<Boolean> values = new ArrayList<>();
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
         List<Boolean> onEvent = new LinkedList<>();
         property.registerCollectionAddEvent((property1, current, changing) -> onEvent.add(true));
@@ -81,7 +79,7 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
 
     @Test
     public void sendsAddEventOnBoundWhenElementIsAdded() {
-        List<Boolean> values = new ArrayList<>();
+        Collection<Boolean> values = new ArrayList<>();
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
         CollectionProperty.ReadOnly<Boolean, Collection<Boolean>> boundProperty = property.createBoundReadOnly();
         List<Boolean> onEvent = new LinkedList<>();
@@ -96,7 +94,7 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
 
     @Test
     public void sendsRemoveEventWhenElementIsRemoved() {
-        List<Boolean> values = new ArrayList<>();
+        Collection<Boolean> values = new ArrayList<>();
         values.add(true);
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
         List<Boolean> onEvent = new LinkedList<>();
@@ -111,7 +109,7 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
 
     @Test
     public void sendsRemoveEventOnBoundPropertyWhenElementIsRemoved() {
-        List<Boolean> values = new ArrayList<>();
+        Collection<Boolean> values = new ArrayList<>();
         values.add(true);
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
         CollectionProperty.ReadOnly<Boolean, Collection<Boolean>> boundProperty = property.createBoundReadOnly();
@@ -127,7 +125,7 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
 
     @Test
     public void canRemoveElementToProperty() {
-        List<Boolean> values = new ArrayList<>();
+        Collection<Boolean> values = new ArrayList<>();
         values.add(true);
         CollectionProperty.Write<Boolean, Collection<Boolean>> property = this.createProperty(values, ValueOverrideRule.PREFER_NEWEST);
 
@@ -135,7 +133,7 @@ public class CollectionPropertyTests extends AbstractPropertyTests<Collection<Bo
         property.remove(true);
 
         //assert
-        Assertions.assertTrue(values.isEmpty());
+        Assertions.assertTrue(property.safeValue().isEmpty());
 
         Collection<Boolean> internalValue = property.safeValue();
         Assertions.assertTrue(internalValue.isEmpty());

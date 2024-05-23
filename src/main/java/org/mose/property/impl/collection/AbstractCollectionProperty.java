@@ -18,12 +18,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public abstract class AbstractCollectionProperty<T, D extends Collection<?>> extends AbstractNeverNullProperty<Collection<T>, D> implements CollectionProperty<T, D> {
+public abstract class AbstractCollectionProperty<T, D extends Collection<?>> extends AbstractNeverNullProperty<Collection<T>, D>
+        implements CollectionProperty<T, D> {
 
     private final Queue<CollectionUpdateEvent<T>> indexUpdateEvents = new LinkedTransferQueue<>();
 
     protected AbstractCollectionProperty(@NotNull Function<Collection<T>, D> displayMappings, Collection<T> defaultValue, Supplier<D> defaultSupplier) {
-        super(displayMappings, defaultSupplier, defaultValue);
+        super(displayMappings, defaultSupplier, (defaultValue == null) ? null : new LinkedList<>(defaultValue));
     }
 
     protected abstract boolean onElementsAdded(Collection<T> newValues);
@@ -51,7 +52,8 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
     }
 
     @Override
-    public @NotNull <B extends Collection<C>, C> WritableCollectorProperty<C, Collection<C>> createFlatCollectingBind(@NotNull Function<T, CollectionProperty<?, Collection<C>>> func) {
+    public @NotNull <B extends Collection<C>, C> WritableCollectorProperty<C, Collection<C>> createFlatCollectingBind(@NotNull Function<T,
+            CollectionProperty<?, Collection<C>>> func) {
         Collection<T> collection = this.valueImpl().orElse(Collections.emptyList());
         List<CollectionProperty<?, Collection<C>>> properties = collection.stream().map(func).collect(Collectors.toList());
         CollectorPropertyBuilder<C, Collection<C>> builder = new CollectorPropertyBuilder<>();
@@ -74,7 +76,7 @@ public abstract class AbstractCollectionProperty<T, D extends Collection<?>> ext
     protected boolean sendElementsAdded(Collection<T> added) {
         Collection<T> value = this.lastKnownValue;
         if (null == value) {
-            value = this.valueImpl().orElseGet(Collections::emptyList);
+            value = new LinkedList<>(this.valueImpl().orElseGet(Collections::emptyList));
         }
         final Collection<T> finalValue = value;
         this.bindData.parallelStream().filter(data -> data.to() instanceof AbstractCollectionProperty).forEach(data -> {
